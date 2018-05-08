@@ -3,7 +3,6 @@ package com.algaworks.algamoneyapi.exceptionhandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -20,57 +19,56 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler{
-	
+public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
+
 	@Autowired
 	private MessageSource messageSource;
-	
+
 	@Override
 	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
-		
+
 		String userMessage = messageSource.getMessage("message.invalid", null, LocaleContextHolder.getLocale());
 		String developerMessage = ex.getCause().toString();
 		List<Error> errors = Arrays.asList(new Error(userMessage, developerMessage));
 		return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
 	}
-	
+
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		List<Error> errors = createErrorList(ex.getBindingResult());
 		return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
 	}
-	
-	private List<Error> createErrorList(BindingResult bindingResult){
+
+	private List<Error> createErrorList(BindingResult bindingResult) {
 		List<Error> errors = new ArrayList<>();
-		
-		for(FieldError fieldError : bindingResult.getFieldErrors()) {
+
+		for (FieldError fieldError : bindingResult.getFieldErrors()) {
 			String userMessage = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
 			String developerMessage = fieldError.toString();
-			errors.add(new Error(userMessage, developerMessage));	
+			errors.add(new Error(userMessage, developerMessage));
 		}
 
 		return errors;
 	}
-	
-	public static class Error{
+
+	public static class Error {
 		private String userMessage;
 		private String developerMessage;
-		
+
 		public Error(String userMessage, String developerMessage) {
 			this.userMessage = userMessage;
 			this.developerMessage = developerMessage;
 		}
-		
+
 		public String getUserMessage() {
 			return userMessage;
 		}
+
 		public String getDeveloperMessage() {
 			return developerMessage;
 		}
 	}
 
 }
-
-
