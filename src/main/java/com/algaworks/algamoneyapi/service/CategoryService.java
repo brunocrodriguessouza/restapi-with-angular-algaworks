@@ -10,10 +10,10 @@ import com.algaworks.algamoneyapi.repository.CategoryRepository;
 
 @Service
 public class CategoryService {
-	
+
 	@Autowired
 	CategoryRepository categoryRepository;
-	
+
 	public Category update(Long id, Category category) {
 		Category savedCategory = categoryRepository.findOne(id);
 		if (savedCategory == null) {

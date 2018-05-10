@@ -10,20 +10,20 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table (name = "people")
+@Table(name = "people")
 public class People {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@NotNull
 	@Size(min = 3, max = 30)
 	private String name;
-	
+
 	@Embedded
 	private Address address;
-	
+
 	@NotNull
 	private Boolean active;
 
@@ -83,7 +83,5 @@ public class People {
 			return false;
 		return true;
 	}
-	
-	
-	
+
 }

@@ -4,10 +4,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationEvent;
 
-public class ResourceCreatedEvent extends ApplicationEvent{
+public class ResourceCreatedEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public HttpServletResponse getResponse() {
 		return response;
 	}
