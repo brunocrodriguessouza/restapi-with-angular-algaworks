@@ -15,12 +15,22 @@ public class PeopleService {
 	private PeopleRepository peopleRepository;
 
 	public People update(Long id, People people) {
-		People savedPeople = peopleRepository.findOne(id);
-		if (savedPeople == null) {
-			throw new EmptyResultDataAccessException(1);
-		}
+		People savedPeople = findPeopleById(id);
 		BeanUtils.copyProperties(people, savedPeople, "id");
 		return peopleRepository.save(savedPeople);
 	}
 
+	public void changeActiveProperty(Long id, Boolean active) {
+		People savedPeople = findPeopleById(id);
+		savedPeople.setActive(active);
+		peopleRepository.save(savedPeople);
+	}
+
+	private People findPeopleById(Long id) {
+		People savedPeople = peopleRepository.findOne(id);
+		if (savedPeople == null) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		return savedPeople;
+	}
 }

@@ -65,4 +65,10 @@ public class PeopleController {
 		People savedPeople = peopleService.update(id, people);
 		return ResponseEntity.ok(savedPeople);
 	}
+	
+	@PutMapping("/{id}/active")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void changeActiveProperty(@PathVariable Long id, @RequestBody Boolean active) {
+		peopleService.changeActiveProperty(id, active);
+	}
 }
