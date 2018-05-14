@@ -27,6 +27,7 @@ import com.algaworks.algamoneyapi.event.ResourceCreatedEvent;
 import com.algaworks.algamoneyapi.exceptionhandler.AlgamoneyExceptionHandler.Error;
 import com.algaworks.algamoneyapi.model.Expense;
 import com.algaworks.algamoneyapi.repository.ExpenseRepository;
+import com.algaworks.algamoneyapi.repository.filter.ExpenseFilter;
 import com.algaworks.algamoneyapi.service.ExpenseService;
 import com.algaworks.algamoneyapi.service.exception.PeopleNonExistentOrInactiveException;
 
@@ -47,8 +48,8 @@ public class ExpenseController {
 	private MessageSource messageSource;
 
 	@GetMapping
-	public List<Expense> getAll() {
-		return expenseRepository.findAll();
+	public List<Expense> getAll(ExpenseFilter expenseFilter) {
+		return expenseRepository.filter(expenseFilter);
 	}
 
 	@GetMapping("/{id}")
