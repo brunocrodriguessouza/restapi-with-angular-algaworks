@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,13 +45,13 @@ public class ExpenseController {
 
 	@Autowired
 	private ApplicationEventPublisher publisher;
-	
+
 	@Autowired
 	private MessageSource messageSource;
 
 	@GetMapping
-	public List<Expense> getAll(ExpenseFilter expenseFilter) {
-		return expenseRepository.filter(expenseFilter);
+	public Page<Expense> getAll(ExpenseFilter expenseFilter, Pageable pageable) {
+		return expenseRepository.filter(expenseFilter, pageable);
 	}
 
 	@GetMapping("/{id}")
@@ -75,10 +77,11 @@ public class ExpenseController {
 		Expense savedExpense = expenseService.update(id, expense);
 		return ResponseEntity.ok(savedExpense);
 	}
-	
+
 	@ExceptionHandler({ PeopleNonExistentOrInactiveException.class })
-	public ResponseEntity<Object> handlePeopleNonExistentOrInactiveException(PeopleNonExistentOrInactiveException ex){
-		String userMessage = messageSource.getMessage("people.non-existent-or-inactive", null, LocaleContextHolder.getLocale());
+	public ResponseEntity<Object> handlePeopleNonExistentOrInactiveException(PeopleNonExistentOrInactiveException ex) {
+		String userMessage = messageSource.getMessage("people.non-existent-or-inactive", null,
+				LocaleContextHolder.getLocale());
 		String developerMessage = ex.toString();
 		List<Error> errors = Arrays.asList(new Error(userMessage, developerMessage));
 		return ResponseEntity.badRequest().body(errors);

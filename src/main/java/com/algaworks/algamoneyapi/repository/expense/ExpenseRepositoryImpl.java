@@ -11,6 +11,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
 import com.algaworks.algamoneyapi.model.Expense;
@@ -22,7 +25,7 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryQuery {
 	private EntityManager manager;
 
 	@Override
-	public List<Expense> filter(ExpenseFilter expenseFilter) {
+	public Page<Expense> filter(ExpenseFilter expenseFilter, Pageable pageable) {
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<Expense> criteria = builder.createQuery(Expense.class);
 		Root<Expense> root = criteria.from(Expense.class);
@@ -31,7 +34,9 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryQuery {
 		criteria.where(predicates);
 
 		TypedQuery<Expense> query = manager.createQuery(criteria);
-		return query.getResultList();
+		addPagingRestrictions(query, pageable);
+
+		return new PageImpl<>(query.getResultList(), pageable, total(expenseFilter));
 	}
 
 	private Predicate[] createRestrictions(ExpenseFilter expenseFilter, CriteriaBuilder builder, Root<Expense> root) {
@@ -53,4 +58,24 @@ public class ExpenseRepositoryImpl implements ExpenseRepositoryQuery {
 		return predicates.toArray(new Predicate[predicates.size()]);
 	}
 
+	private void addPagingRestrictions(TypedQuery<Expense> query, Pageable pageable) {
+		int actualPage = pageable.getPageNumber();
+		int totalRegistersPerPage = pageable.getPageSize();
+		int firstRegisterOnPage = actualPage * totalRegistersPerPage;
+
+		query.setFirstResult(firstRegisterOnPage);
+		query.setMaxResults(totalRegistersPerPage);
+	}
+
+	private Long total(ExpenseFilter expenseFilter) {
+		CriteriaBuilder builder = manager.getCriteriaBuilder();
+		CriteriaQuery<Long> criteria = builder.createQuery(Long.class);
+		Root<Expense> root = criteria.from(Expense.class);
+
+		Predicate[] predicates = createRestrictions(expenseFilter, builder, root);
+		criteria.where(predicates);
+
+		criteria.select(builder.count(root));
+		return manager.createQuery(criteria).getSingleResult();
+	}
 }
